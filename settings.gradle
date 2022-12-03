@@ -1,0 +1,3 @@
+rootProject.name = "V2ray Example"
+include ':app'
+include ':v2ray'

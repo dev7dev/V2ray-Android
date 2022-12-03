@@ -1,0 +1,28 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Base" parent="Theme.MaterialComponents.NoActionBar">
+
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorAccent">@color/white</item>
+        <item name="colorControlNormal">@color/purple_700</item>
+        <item name="android:statusBarColor">@color/purple_700</item>
+        <!--        <item name="android:windowBackground">@drawable/bg_dark_main</item>-->
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+    </style>
+
+    <style name="Theme.Base.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/purple_700</item>
+        <!-- Used for the buttons -->
+        <item name="colorAccent">@color/white</item>
+        <item name="textColorAlertDialogListItem">@color/white</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Theme.Base.SwitchCompact" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">@color/purple_700</item>
+    </style>
+</resources>
