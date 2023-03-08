@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 "         \"settings\":{\n" +
                 "            \"vnext\":[\n" +
                 "               {\n" +
-                "                  \"address\":\"amqq.ir\",\n" +
+                "                  \"address\":\"v.dev7.dev\",\n" +
                 "                  \"port\":8080,\n" +
                 "                  \"users\":[\n" +
                 "                     {\n" +
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                 "                           \"keep-alive\"\n" +
                 "                        ],\n" +
                 "                        \"Host\":[\n" +
-                "                           \"ezZboX5F.divarcdn.com\"\n" +
+                "                           \"amamzon.com\"\n" +
                 "                        ],\n" +
                 "                        \"Pragma\":\"no-cache\",\n" +
                 "                        \"Accept-Encoding\":[\n" +
