@@ -3,14 +3,15 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    namespace 'dev.dev7.example'
+    compileSdk 33
 
     defaultConfig {
         applicationId "dev.dev7.example"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
-        versionName "1.012"
+        versionName "2.023"
         setProperty("archivesBaseName", rootProject.name + "-" + versionName)
     }
 
@@ -20,6 +21,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -27,9 +29,8 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation project(path: ':v2ray')
 
 }
