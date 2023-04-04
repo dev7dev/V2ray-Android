@@ -2,7 +2,7 @@
 A simple Java module with sample source for implementing v2ray on Android. 
 The function of the program will be completely similar to [V2rayNG](https://github.com/2dust/v2rayNG).
 
-support xray-core , v2fly-core ,  v2ray-core. Current core is Xray-core.
+support xray-core , v2fly-core ,  v2ray-core. Current core is Xray-core 1.8.
 
 To change the core, you can proceed as follows: 
 [V2rayNG Development-Guide](https://github.com/2dust/v2rayNG#development-guide)
