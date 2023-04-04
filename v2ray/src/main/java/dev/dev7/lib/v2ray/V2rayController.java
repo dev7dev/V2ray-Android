@@ -15,6 +15,7 @@ import dev.dev7.lib.v2ray.services.V2rayProxyOnlyService;
 import dev.dev7.lib.v2ray.services.V2rayVPNService;
 import dev.dev7.lib.v2ray.utils.AppConfigs;
 import dev.dev7.lib.v2ray.utils.Utilities;
+import libv2ray.Libv2ray;
 
 public class V2rayController {
 
@@ -109,5 +110,9 @@ public class V2rayController {
 
     public static AppConfigs.V2RAY_STATES getConnectionState() {
         return AppConfigs.V2RAY_STATE;
+    }
+
+    public static String getCoreVersion(){
+        return Libv2ray.checkVersionX();
     }
 }

@@ -93,9 +93,18 @@
         android:id="@+id/btn_connection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
+        android:layout_marginTop="10dp"
         android:text="DISCONNECTED"
         android:textSize="14sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/core_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Xray Core 1.8"
+        android:textColor="@color/white"
+        android:textSize="10sp" />
 </LinearLayout>

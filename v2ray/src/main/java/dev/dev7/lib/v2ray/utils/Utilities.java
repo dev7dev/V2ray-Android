@@ -73,7 +73,7 @@ public class Utilities {
         }
     }
 
-    public static V2rayConfig parseV2rayJsonFile(final String remark,String config, final ArrayList<String> blockedApplication) {
+    public static V2rayConfig parseV2rayJsonFile(final String remark, String config, final ArrayList<String> blockedApplication) {
         final V2rayConfig v2rayConfig = new V2rayConfig();
         v2rayConfig.REMARK = remark;
         v2rayConfig.BLOCKED_APPS = blockedApplication;
@@ -122,15 +122,18 @@ public class Utilities {
                         .getJSONArray("servers").getJSONObject(0)
                         .getString("port");
             }
-
+            try {
+                if (config_json.has("policy")) {
+                    config_json.remove("policy");
+                }
+                if (config_json.has("stats")) {
+                    config_json.remove("stats");
+                }
+            } catch (Exception ignore_error) {
+                //ignore
+            }
             if (AppConfigs.ENABLE_TRAFFIC_AND_SPEED_STATICS) {
                 try {
-                    if (config_json.has("policy")) {
-                        config_json.remove("policy");
-                    }
-                    if (config_json.has("stats")) {
-                        config_json.remove("stats");
-                    }
                     JSONObject policy = new JSONObject();
                     JSONObject levels = new JSONObject();
                     levels.put("8", new JSONObject()

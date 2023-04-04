@@ -24,7 +24,7 @@ import dev.dev7.lib.v2ray.utils.AppConfigs;
 public class MainActivity extends AppCompatActivity {
     private Button connection;
     private TextView connection_speed, connection_traffic, connection_time,
-            server_delay, connected_server_delay, connection_mode;
+            server_delay, connected_server_delay, connection_mode,core_version;
     private EditText v2ray_json_config;
     ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         connection_mode = findViewById(R.id.connection_mode);
         connected_server_delay = findViewById(R.id.connected_server_delay);
         v2ray_json_config = findViewById(R.id.v2ray_json_config);
+        core_version = findViewById(R.id.core_version);
 
         // Checking the previous state value each time the activity is opened
         switch (V2rayController.getConnectionState().toString()) {
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         }
         connection_mode.setText("connection mode : " + V2rayController.getConnectionMode() + " (tap to toggle)");
         v2ray_json_config.setText(getConfigContent());
-
+        core_version.setText("v"+BuildConfig.VERSION_NAME+", "+V2rayController.getCoreVersion());
         // Checking for access to tunneling the entire device network
         Intent intent = VpnService.prepare(getApplicationContext());
         if (intent != null) {
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Another way to check the connectio delay of a config without connecting to it.
+        // Another way to check the connection delay of a config without connecting to it.
         server_delay.setOnClickListener(view -> {
             server_delay.setText("server delay : measuring...");
             new Handler().post(() -> server_delay.setText("server delay : " + V2rayController.getV2rayServerDelay(v2ray_json_config.getText().toString())));
@@ -136,138 +137,7 @@ public class MainActivity extends AppCompatActivity {
     }
     
     public static String getConfigContent() {
-        return "{\n" +
-                "   \"dns\":{\n" +
-                "      \"hosts\":{\n" +
-                "         \"domain:googleapis.cn\":\"googleapis.com\"\n" +
-                "      },\n" +
-                "      \"servers\":[\n" +
-                "         \"1.1.1.1\"\n" +
-                "      ]\n" +
-                "   },\n" +
-                "   \"inbounds\":[\n" +
-                "      {\n" +
-                "         \"listen\":\"127.0.0.1\",\n" +
-                "         \"port\":10808,\n" +
-                "         \"protocol\":\"socks\",\n" +
-                "         \"settings\":{\n" +
-                "            \"auth\":\"noauth\",\n" +
-                "            \"udp\":true,\n" +
-                "            \"userLevel\":8\n" +
-                "         },\n" +
-                "         \"sniffing\":{\n" +
-                "            \"destOverride\":[\n" +
-                "               \"http\",\n" +
-                "               \"tls\"\n" +
-                "            ],\n" +
-                "            \"enabled\":true\n" +
-                "         },\n" +
-                "         \"tag\":\"socks\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "         \"listen\":\"127.0.0.1\",\n" +
-                "         \"port\":10809,\n" +
-                "         \"protocol\":\"http\",\n" +
-                "         \"settings\":{\n" +
-                "            \"userLevel\":8\n" +
-                "         },\n" +
-                "         \"tag\":\"http\"\n" +
-                "      }\n" +
-                "   ],\n" +
-                "   \"log\":{\n" +
-                "      \"loglevel\":\"warning\"\n" +
-                "   },\n" +
-                "   \"outbounds\":[\n" +
-                "      {\n" +
-                "         \"mux\":{\n" +
-                "            \"concurrency\":8,\n" +
-                "            \"enabled\":false\n" +
-                "         },\n" +
-                "         \"protocol\":\"vmess\",\n" +
-                "         \"settings\":{\n" +
-                "            \"vnext\":[\n" +
-                "               {\n" +
-                "                  \"address\":\"v.dev7.dev\",\n" +
-                "                  \"port\":8080,\n" +
-                "                  \"users\":[\n" +
-                "                     {\n" +
-                "                        \"alterId\":0,\n" +
-                "                        \"encryption\":\"\",\n" +
-                "                        \"flow\":\"\",\n" +
-                "                        \"id\":\"d149cedd-660e-43c5-812f-e28e33fe7b5d\",\n" +
-                "                        \"level\":8,\n" +
-                "                        \"security\":\"auto\"\n" +
-                "                     }\n" +
-                "                  ]\n" +
-                "               }\n" +
-                "            ]\n" +
-                "         },\n" +
-                "         \"streamSettings\":{\n" +
-                "            \"network\":\"tcp\",\n" +
-                "            \"security\":\"\",\n" +
-                "            \"tcpSettings\":{\n" +
-                "               \"header\":{\n" +
-                "                  \"request\":{\n" +
-                "                     \"headers\":{\n" +
-                "                        \"Connection\":[\n" +
-                "                           \"keep-alive\"\n" +
-                "                        ],\n" +
-                "                        \"Host\":[\n" +
-                "                           \"amamzon.com\"\n" +
-                "                        ],\n" +
-                "                        \"Pragma\":\"no-cache\",\n" +
-                "                        \"Accept-Encoding\":[\n" +
-                "                           \"gzip, deflate\"\n" +
-                "                        ],\n" +
-                "                        \"User-Agent\":[\n" +
-                "                           \"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36\",\n" +
-                "                           \"Mozilla/5.0 (iPhone; CPU iPhone OS 10_0_2 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/53.0.2785.109 Mobile/14A456 Safari/601.1.46\"\n" +
-                "                        ]\n" +
-                "                     },\n" +
-                "                     \"method\":\"GET\",\n" +
-                "                     \"path\":[\n" +
-                "                        \"/downloads/\"\n" +
-                "                     ],\n" +
-                "                     \"version\":\"1.1\"\n" +
-                "                  },\n" +
-                "                  \"type\":\"http\"\n" +
-                "               }\n" +
-                "            }\n" +
-                "         },\n" +
-                "         \"tag\":\"proxy\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "         \"protocol\":\"freedom\",\n" +
-                "         \"settings\":{\n" +
-                "            \n" +
-                "         },\n" +
-                "         \"tag\":\"direct\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "         \"protocol\":\"blackhole\",\n" +
-                "         \"settings\":{\n" +
-                "            \"response\":{\n" +
-                "               \"type\":\"http\"\n" +
-                "            }\n" +
-                "         },\n" +
-                "         \"tag\":\"block\"\n" +
-                "      }\n" +
-                "   ],\n" +
-                "   \"routing\":{\n" +
-                "      \"domainMatcher\":\"mph\",\n" +
-                "      \"domainStrategy\":\"IPIfNonMatch\",\n" +
-                "      \"rules\":[\n" +
-                "         {\n" +
-                "            \"ip\":[\n" +
-                "               \"1.1.1.1\"\n" +
-                "            ],\n" +
-                "            \"outboundTag\":\"proxy\",\n" +
-                "            \"port\":\"53\",\n" +
-                "            \"type\":\"field\"\n" +
-                "         }\n" +
-                "      ]\n" +
-                "   }\n" +
-                "}";
+        return "";
     }
 
 
