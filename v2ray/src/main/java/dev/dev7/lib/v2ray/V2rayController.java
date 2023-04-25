@@ -28,7 +28,7 @@ public class V2rayController {
             public void onReceive(Context arg0, Intent arg1) {
                 AppConfigs.V2RAY_STATE = (AppConfigs.V2RAY_STATES) arg1.getExtras().getSerializable("STATE");
             }
-        }, new IntentFilter("CONNECTION_INFO"));
+        }, new IntentFilter("V2RAY_CONNECTION_INFO"));
     }
 
     public static void changeConnectionMode(final AppConfigs.V2RAY_CONNECTION_MODES connection_mode) {
@@ -115,4 +115,6 @@ public class V2rayController {
     public static String getCoreVersion(){
         return Libv2ray.checkVersionX();
     }
+
+
 }

@@ -23,16 +23,15 @@ import dev.dev7.lib.v2ray.utils.AppConfigs;
 
 public class MainActivity extends AppCompatActivity {
     private Button connection;
-    private TextView connection_speed, connection_traffic, connection_time,
-            server_delay, connected_server_delay, connection_mode,core_version;
+    private TextView connection_speed, connection_traffic, connection_time, server_delay, connected_server_delay, connection_mode, core_version;
     private EditText v2ray_json_config;
-    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() != Activity.RESULT_OK) {
-                    Toast.makeText(this, "Permission not granted.", Toast.LENGTH_SHORT).show();
-                }
-            });
+
+    private BroadcastReceiver v2rayBroadCastReceiver;
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() != Activity.RESULT_OK) {
+            Toast.makeText(this, "Permission not granted.", Toast.LENGTH_SHORT).show();
+        }
+    });
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         }
         connection_mode.setText("connection mode : " + V2rayController.getConnectionMode() + " (tap to toggle)");
         v2ray_json_config.setText(getConfigContent());
-        core_version.setText("v"+BuildConfig.VERSION_NAME+", "+V2rayController.getCoreVersion());
+        core_version.setText("v" + BuildConfig.VERSION_NAME + ", " + V2rayController.getCoreVersion());
         // Checking for access to tunneling the entire device network
         Intent intent = VpnService.prepare(getApplicationContext());
         if (intent != null) {
@@ -111,14 +110,14 @@ public class MainActivity extends AppCompatActivity {
         //I tested several different ways to send information from the connection process side
         // to other places (such as interfaces, AIDL and singleton ,...) apparently the best way
         // to send information is broadcast.
-        // So v2ray library will be broadcast information with action CONNECTION_INFO.
-        registerReceiver(new BroadcastReceiver() {
+        // So v2ray library will be broadcast information with action V2RAY_CONNECTION_INFO.
+        v2rayBroadCastReceiver = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                connection_time.setText("connection time : " + arg1.getExtras().getString("DURATION"));
-                connection_speed.setText("connection speed : " + arg1.getExtras().getString("UPLOAD_SPEED") + " | " + arg1.getExtras().getString("DOWNLOAD_SPEED"));
-                connection_traffic.setText("connection traffic : " + arg1.getExtras().getString("UPLOAD_TRAFFIC") + " | " + arg1.getExtras().getString("DOWNLOAD_TRAFFIC"));
-                switch (arg1.getExtras().getSerializable("STATE").toString()) {
+            public void onReceive(Context context, Intent intent) {
+                connection_time.setText("connection time : " + intent.getExtras().getString("DURATION"));
+                connection_speed.setText("connection speed : " + intent.getExtras().getString("UPLOAD_SPEED") + " | " + intent.getExtras().getString("DOWNLOAD_SPEED"));
+                connection_traffic.setText("connection traffic : " + intent.getExtras().getString("UPLOAD_TRAFFIC") + " | " + intent.getExtras().getString("DOWNLOAD_TRAFFIC"));
+                switch (intent.getExtras().getSerializable("STATE").toString()) {
                     case "V2RAY_CONNECTED":
                         connection.setText("CONNECTED");
                         break;
@@ -132,13 +131,19 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-        }, new IntentFilter("CONNECTION_INFO"));
+        };
+        registerReceiver(v2rayBroadCastReceiver, new IntentFilter("V2RAY_CONNECTION_INFO"));
 
     }
-    
+
     public static String getConfigContent() {
         return "";
     }
 
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(v2rayBroadCastReceiver);
+    }
 }
