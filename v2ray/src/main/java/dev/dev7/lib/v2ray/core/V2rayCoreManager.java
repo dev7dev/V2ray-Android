@@ -17,6 +17,8 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import org.json.JSONObject;
+
 import java.util.Objects;
 
 import dev.dev7.lib.v2ray.interfaces.V2rayServicesListener;
@@ -319,8 +321,19 @@ public final class V2rayCoreManager {
 
     public Long getV2rayServerDelay(final String config) {
         try {
-            return Libv2ray.measureOutboundDelay(config);
+            try {
+                JSONObject config_json = new JSONObject(config);
+                JSONObject new_routing_json = config_json.getJSONObject("routing");
+                new_routing_json.remove("rules");
+                config_json.remove("routing");
+                config_json.put("routing", new_routing_json);
+                return Libv2ray.measureOutboundDelay(config_json.toString());
+            } catch (Exception json_error) {
+                Log.e("getV2rayServerDelay", json_error.toString());
+                return Libv2ray.measureOutboundDelay(config);
+            }
         } catch (Exception e) {
+            Log.e("getV2rayServerDelayCore", e.toString());
             return -1L;
         }
     }
