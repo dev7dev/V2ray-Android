@@ -89,10 +89,12 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
             return;
         }
         Builder builder = new Builder();
-        builder.setSession(AppConfigs.APPLICATION_NAME);
+        builder.setSession(v2rayConfig.REMARK);
         builder.setMtu(1500);
-        builder.addAddress("26.26.26.1", 24);
+        builder.addAddress("26.26.26.1", 30);
         builder.addRoute("0.0.0.0", 0);
+        builder.addDnsServer("1.1.1.1");
+        builder.addDnsServer("8.8.4.4");
         if (v2rayConfig.BLOCKED_APPS != null) {
             for (int i = 0; i < v2rayConfig.BLOCKED_APPS.size(); i++) {
                 try {
