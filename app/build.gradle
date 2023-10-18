@@ -9,9 +9,10 @@ android {
     defaultConfig {
         applicationId "dev.dev7.example"
         minSdk 21
+        //noinspection OldTargetApi
         targetSdk 33
         versionCode 4
-        versionName "2.053"
+        versionName "2.184"
         setProperty("archivesBaseName", rootProject.name + "-" + versionName)
     }
 

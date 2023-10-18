@@ -1,14 +1,21 @@
 package dev.dev7.lib.v2ray;
 
+import static android.Manifest.permission.POST_NOTIFICATIONS;
+
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.VpnService;
 import android.os.Build;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+import androidx.core.content.PermissionChecker;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 import dev.dev7.lib.v2ray.core.V2rayCoreManager;
 import dev.dev7.lib.v2ray.services.V2rayProxyOnlyService;
@@ -19,6 +26,7 @@ import libv2ray.Libv2ray;
 
 public class V2rayController {
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     public static void init(final Context context, final int app_icon, final String app_name) {
         Utilities.copyAssets(context);
         AppConfigs.APPLICATION_ICON = app_icon;
@@ -26,7 +34,7 @@ public class V2rayController {
         context.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent arg1) {
-                AppConfigs.V2RAY_STATE = (AppConfigs.V2RAY_STATES) arg1.getExtras().getSerializable("STATE");
+                AppConfigs.V2RAY_STATE = (AppConfigs.V2RAY_STATES) Objects.requireNonNull(arg1.getExtras()).getSerializable("STATE");
             }
         }, new IntentFilter("V2RAY_CONNECTION_INFO"));
     }
@@ -36,6 +44,17 @@ public class V2rayController {
             AppConfigs.V2RAY_CONNECTION_MODE = connection_mode;
         }
     }
+
+    public static boolean IsPreparedForConnection(final Context context) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(context, POST_NOTIFICATIONS) != PermissionChecker.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        Intent vpnServicePrepareIntent = VpnService.prepare(context);
+        return vpnServicePrepareIntent == null;
+    }
+
 
     public static void StartV2ray(final Context context, final String remark, final String config, final ArrayList<String> blocked_apps) {
         AppConfigs.V2RAY_CONFIG = Utilities.parseV2rayJsonFile(remark, config, blocked_apps);
@@ -73,6 +92,7 @@ public class V2rayController {
         AppConfigs.V2RAY_CONFIG = null;
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     public static void getConnectedV2rayServerDelay(final Context context, final TextView tvDelay) {
         Intent check_delay;
         if (AppConfigs.V2RAY_CONNECTION_MODE == AppConfigs.V2RAY_CONNECTION_MODES.PROXY_ONLY) {
@@ -88,7 +108,7 @@ public class V2rayController {
             @SuppressLint("SetTextI18n")
             @Override
             public void onReceive(Context arg0, Intent arg1) {
-                String delay = arg1.getExtras().getString("DELAY");
+                String delay = Objects.requireNonNull(arg1.getExtras()).getString("DELAY");
                 tvDelay.setText("connected server delay : " + delay);
                 context.unregisterReceiver(this);
             }
@@ -112,7 +132,7 @@ public class V2rayController {
         return AppConfigs.V2RAY_STATE;
     }
 
-    public static String getCoreVersion(){
+    public static String getCoreVersion() {
         return Libv2ray.checkVersionX();
     }
 
