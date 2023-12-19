@@ -94,13 +94,20 @@ public class MainActivity extends AppCompatActivity {
                 prepareForConnection();
             }
         });
-
+        // Check the connection delay of connected config.
+        connected_server_delay.setOnClickListener(view -> {
+            if (V2rayController.getConnectionState() == AppConfigs.V2RAY_STATES.V2RAY_CONNECTED) {
+                connected_server_delay.setText("connected server delay : measuring...");
+                new Handler().postDelayed(() -> V2rayController.getConnectedV2rayServerDelay(getApplicationContext(), connected_server_delay), 1000);
+            } else {
+                Toast.makeText(MainActivity.this, "Can`t measure delay , connection is down.", Toast.LENGTH_LONG).show();
+            }
+        });
         // Another way to check the connection delay of a config without connecting to it.
         server_delay.setOnClickListener(view -> {
             server_delay.setText("server delay : measuring...");
             new Handler().post(() -> server_delay.setText("server delay : " + V2rayController.getV2rayServerDelay(v2ray_json_config.getText().toString())));
         });
-
         // The connection mode determines whether the entire phone is tunneled or whether an internal proxy (http , socks) is run
         connection_mode.setOnClickListener(view -> {
             // Oh,Sorry you can`t change connection mode when you have active connection. I can`t solve that for now. ):
@@ -141,7 +148,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        registerReceiver(v2rayBroadCastReceiver, new IntentFilter("V2RAY_CONNECTION_INFO"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(v2rayBroadCastReceiver, new IntentFilter("V2RAY_CONNECTION_INFO"), RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(v2rayBroadCastReceiver, new IntentFilter("V2RAY_CONNECTION_INFO"));
+        }
 
     }
 

@@ -31,12 +31,17 @@ public class V2rayController {
         Utilities.copyAssets(context);
         AppConfigs.APPLICATION_ICON = app_icon;
         AppConfigs.APPLICATION_NAME = app_name;
-        context.registerReceiver(new BroadcastReceiver() {
+        BroadcastReceiver br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context arg0, Intent arg1) {
                 AppConfigs.V2RAY_STATE = (AppConfigs.V2RAY_STATES) Objects.requireNonNull(arg1.getExtras()).getSerializable("STATE");
             }
-        }, new IntentFilter("V2RAY_CONNECTION_INFO"));
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(br, new IntentFilter("V2RAY_CONNECTION_INFO"), Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(br, new IntentFilter("V2RAY_CONNECTION_INFO"));
+        }
     }
 
     public static void changeConnectionMode(final AppConfigs.V2RAY_CONNECTION_MODES connection_mode) {
@@ -69,6 +74,7 @@ public class V2rayController {
         } else {
             return;
         }
+        start_intent.setPackage(context.getPackageName());
         start_intent.putExtra("COMMAND", AppConfigs.V2RAY_SERVICE_COMMANDS.START_SERVICE);
         start_intent.putExtra("V2RAY_CONFIG", AppConfigs.V2RAY_CONFIG);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
@@ -88,7 +94,12 @@ public class V2rayController {
             return;
         }
         stop_intent.putExtra("COMMAND", AppConfigs.V2RAY_SERVICE_COMMANDS.STOP_SERVICE);
-        context.startService(stop_intent);
+        stop_intent.setPackage(context.getPackageName());
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+            context.startForegroundService(stop_intent);
+        } else {
+            context.startService(stop_intent);
+        }
         AppConfigs.V2RAY_CONFIG = null;
     }
 
@@ -104,7 +115,7 @@ public class V2rayController {
         }
         check_delay.putExtra("COMMAND", AppConfigs.V2RAY_SERVICE_COMMANDS.MEASURE_DELAY);
         context.startService(check_delay);
-        context.registerReceiver(new BroadcastReceiver() {
+        BroadcastReceiver br = new BroadcastReceiver() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onReceive(Context arg0, Intent arg1) {
@@ -112,7 +123,13 @@ public class V2rayController {
                 tvDelay.setText("connected server delay : " + delay);
                 context.unregisterReceiver(this);
             }
-        }, new IntentFilter("CONNECTED_V2RAY_SERVER_DELAY"));
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(br, new IntentFilter("CONNECTED_V2RAY_SERVER_DELAY"), Context.RECEIVER_EXPORTED);
+        } else {
+            context.registerReceiver(br, new IntentFilter("CONNECTED_V2RAY_SERVER_DELAY"));
+        }
+
     }
 
     public static String getV2rayServerDelay(final String config) {

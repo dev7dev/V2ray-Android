@@ -1,5 +1,7 @@
 package dev.dev7.lib.v2ray.core;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+import static dev.dev7.lib.v2ray.utils.Utilities.getDeviceIdForXUDPBaseKey;
 import static dev.dev7.lib.v2ray.utils.Utilities.getUserAssetsPath;
 
 import android.app.Notification;
@@ -98,7 +100,7 @@ public final class V2rayCoreManager {
     public void setUpListener(Service targetService) {
         try {
             v2rayServicesListener = (V2rayServicesListener) targetService;
-            Libv2ray.initV2Env(getUserAssetsPath(targetService.getApplicationContext()));
+            Libv2ray.initV2Env(getUserAssetsPath(targetService.getApplicationContext()), getDeviceIdForXUDPBaseKey());
             isLibV2rayCoreInitialized = true;
             SERVICE_DURATION = "00:00:00";
             seconds = 0;
@@ -236,15 +238,6 @@ public final class V2rayCoreManager {
             countDownTimer.cancel();
         }
     }
-//
-//    private fun getNotificationManager(): NotificationManager? {
-//        if (mNotificationManager == null) {
-//            val service = serviceControl?.get()?.getService() ?: return null
-//            mNotificationManager =
-//                    service.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//        }
-//        return mNotificationManager
-//    }
 
     private NotificationManager getNotificationManager() {
         if (mNotificationManager == null) {
@@ -283,12 +276,13 @@ public final class V2rayCoreManager {
         }
         Intent launchIntent = v2rayServicesListener.getService().getPackageManager().
                 getLaunchIntentForPackage(v2rayServicesListener.getService().getApplicationInfo().packageName);
+        assert launchIntent != null;
         launchIntent.setAction("FROM_DISCONNECT_BTN");
         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent notificationContentPendingIntent = PendingIntent.getActivity(
                 v2rayServicesListener.getService(), 0, launchIntent, judgeForNotificationFlag());
         String notificationChannelID = "";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationChannelID = createNotificationChannelID(v2rayConfig.APPLICATION_NAME);
         }
         NotificationCompat.Builder mBuilder =
@@ -301,7 +295,11 @@ public final class V2rayCoreManager {
                 .setOnlyAlertOnce(true)
                 .setContentIntent(notificationContentPendingIntent)
                 .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE);
-        v2rayServicesListener.getService().startForeground(1, mBuilder.build());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            v2rayServicesListener.getService().startForeground(1, mBuilder.build(), FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            v2rayServicesListener.getService().startForeground(1, mBuilder.build());
+        }
     }
 
     public boolean isV2rayCoreRunning() {

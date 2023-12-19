@@ -1,6 +1,8 @@
 package dev.dev7.lib.v2ray.utils;
 
 import android.content.Context;
+import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -11,19 +13,39 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 
 import dev.dev7.lib.v2ray.core.V2rayCoreManager;
 
 public class Utilities {
 
+    public static String getDeviceIdForXUDPBaseKey() {
+        String androidId = Settings.Secure.ANDROID_ID;
+        byte[] androidIdBytes = androidId.getBytes(StandardCharsets.UTF_8);
+        return Base64.encodeToString(Arrays.copyOf(androidIdBytes, 32), Base64.URL_SAFE);
+    }
+
     public static void CopyFiles(InputStream src, File dst) throws IOException {
-        try (OutputStream out = new FileOutputStream(dst)) {
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = src.read(buf)) > 0) {
-                out.write(buf, 0, len);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            try (OutputStream out = Files.newOutputStream(dst.toPath())) {
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = src.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
+        } else {
+            try (OutputStream out = new FileOutputStream(dst)) {
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = src.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
             }
         }
     }
@@ -44,7 +66,7 @@ public class Utilities {
         String extFolder = getUserAssetsPath(context);
         try {
             String geo = "geosite.dat,geoip.dat";
-            for (String assets_obj : context.getAssets().list("")) {
+            for (String assets_obj : Objects.requireNonNull(context.getAssets().list(""))) {
                 if (geo.contains(assets_obj)) {
                     CopyFiles(context.getAssets().open(assets_obj), new File(extFolder, assets_obj));
                 }
@@ -57,7 +79,7 @@ public class Utilities {
 
     public static String convertIntToTwoDigit(int value) {
         if (value < 10) return "0" + value;
-        else return value + "";
+        else return String.valueOf(value);
     }
 
     public static String parseTraffic(final double bytes, final boolean inBits, final boolean isMomentary) {
@@ -104,23 +126,11 @@ public class Utilities {
                 return null;
             }
             try {
-                v2rayConfig.CONNECTED_V2RAY_SERVER_ADDRESS = config_json.getJSONArray("outbounds")
-                        .getJSONObject(0).getJSONObject("settings")
-                        .getJSONArray("vnext").getJSONObject(0)
-                        .getString("address");
-                v2rayConfig.CONNECTED_V2RAY_SERVER_PORT = config_json.getJSONArray("outbounds")
-                        .getJSONObject(0).getJSONObject("settings")
-                        .getJSONArray("vnext").getJSONObject(0)
-                        .getString("port");
+                v2rayConfig.CONNECTED_V2RAY_SERVER_ADDRESS = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).getString("address");
+                v2rayConfig.CONNECTED_V2RAY_SERVER_PORT = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).getString("port");
             } catch (Exception e) {
-                v2rayConfig.CONNECTED_V2RAY_SERVER_ADDRESS = config_json.getJSONArray("outbounds")
-                        .getJSONObject(0).getJSONObject("settings")
-                        .getJSONArray("servers").getJSONObject(0)
-                        .getString("address");
-                v2rayConfig.CONNECTED_V2RAY_SERVER_PORT = config_json.getJSONArray("outbounds")
-                        .getJSONObject(0).getJSONObject("settings")
-                        .getJSONArray("servers").getJSONObject(0)
-                        .getString("port");
+                v2rayConfig.CONNECTED_V2RAY_SERVER_ADDRESS = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("servers").getJSONObject(0).getString("address");
+                v2rayConfig.CONNECTED_V2RAY_SERVER_PORT = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("servers").getJSONObject(0).getString("port");
             }
             try {
                 if (config_json.has("policy")) {
@@ -136,14 +146,8 @@ public class Utilities {
                 try {
                     JSONObject policy = new JSONObject();
                     JSONObject levels = new JSONObject();
-                    levels.put("8", new JSONObject()
-                            .put("connIdle", 300)
-                            .put("downlinkOnly", 1)
-                            .put("handshake", 4)
-                            .put("uplinkOnly", 1));
-                    JSONObject system = new JSONObject()
-                            .put("statsOutboundUplink", true)
-                            .put("statsOutboundDownlink", true);
+                    levels.put("8", new JSONObject().put("connIdle", 300).put("downlinkOnly", 1).put("handshake", 4).put("uplinkOnly", 1));
+                    JSONObject system = new JSONObject().put("statsOutboundUplink", true).put("statsOutboundDownlink", true);
                     policy.put("levels", levels);
                     policy.put("system", system);
                     config_json.put("policy", policy);

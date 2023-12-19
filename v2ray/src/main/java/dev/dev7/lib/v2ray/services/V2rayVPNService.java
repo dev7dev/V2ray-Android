@@ -73,7 +73,6 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
             stopSelf();
         } catch (Exception e) {
             //ignore
-            Log.e("CANT_STOP", "SELF");
         }
         try {
             mInterface.close();
@@ -148,7 +147,6 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
             }, "Tun2socks_Thread").start();
             sendFileDescriptor();
         } catch (Exception e) {
-            Log.e("VPN_SERVICE", "FAILED=>", e);
             this.onDestroy();
         }
     }
