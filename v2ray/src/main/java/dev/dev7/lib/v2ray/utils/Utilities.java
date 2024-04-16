@@ -1,5 +1,8 @@
 package dev.dev7.lib.v2ray.utils;
 
+import static dev.dev7.lib.v2ray.utils.V2rayConfigs.currentConfig;
+import static dev.dev7.lib.v2ray.utils.V2rayConstants.DEFAULT_OUT_BOUND_PLACE_IN_FULL_JSON_CONFIG;
+
 import android.content.Context;
 import android.provider.Settings;
 import android.util.Base64;
@@ -20,14 +23,14 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
-import dev.dev7.lib.v2ray.core.V2rayCoreManager;
+import libv2ray.Libv2ray;
 
 public class Utilities {
 
     public static String getDeviceIdForXUDPBaseKey() {
         String androidId = Settings.Secure.ANDROID_ID;
         byte[] androidIdBytes = androidId.getBytes(StandardCharsets.UTF_8);
-        return Base64.encodeToString(Arrays.copyOf(androidIdBytes, 32), Base64.URL_SAFE);
+        return Base64.encodeToString(Arrays.copyOf(androidIdBytes, 32), Base64.NO_PADDING | Base64.URL_SAFE);
     }
 
     public static void CopyFiles(InputStream src, File dst) throws IOException {
@@ -72,10 +75,9 @@ public class Utilities {
                 }
             }
         } catch (Exception e) {
-            Log.e("Utilities", "copyAssets failed=>", e);
+            Log.e(Utilities.class.getSimpleName(), "copyAssets failed=>", e);
         }
     }
-
 
     public static String convertIntToTwoDigit(int value) {
         if (value < 10) return "0" + value;
@@ -84,53 +86,56 @@ public class Utilities {
 
     public static String parseTraffic(final double bytes, final boolean inBits, final boolean isMomentary) {
         double value = inBits ? bytes * 8 : bytes;
-        if (value < AppConfigs.KILO_BYTE) {
+        if (value < V2rayConstants.KILO_BYTE) {
             return String.format(Locale.getDefault(), "%.1f " + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value);
-        } else if (value < AppConfigs.MEGA_BYTE) {
-            return String.format(Locale.getDefault(), "%.1f K" + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value / AppConfigs.KILO_BYTE);
-        } else if (value < AppConfigs.GIGA_BYTE) {
-            return String.format(Locale.getDefault(), "%.1f M" + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value / AppConfigs.MEGA_BYTE);
+        } else if (value < V2rayConstants.MEGA_BYTE) {
+            return String.format(Locale.getDefault(), "%.1f K" + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value / V2rayConstants.KILO_BYTE);
+        } else if (value < V2rayConstants.GIGA_BYTE) {
+            return String.format(Locale.getDefault(), "%.1f M" + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value / V2rayConstants.MEGA_BYTE);
         } else {
-            return String.format(Locale.getDefault(), "%.2f G" + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value / AppConfigs.GIGA_BYTE);
+            return String.format(Locale.getDefault(), "%.2f G" + (inBits ? "b" : "B") + (isMomentary ? "/s" : ""), value / V2rayConstants.GIGA_BYTE);
         }
     }
 
-    public static V2rayConfig parseV2rayJsonFile(final String remark, String config, final ArrayList<String> blockedApplication) {
-        final V2rayConfig v2rayConfig = new V2rayConfig();
-        v2rayConfig.REMARK = remark;
-        v2rayConfig.BLOCKED_APPS = blockedApplication;
-        v2rayConfig.APPLICATION_ICON = AppConfigs.APPLICATION_ICON;
-        v2rayConfig.APPLICATION_NAME = AppConfigs.APPLICATION_NAME;
+    public static String normalizeV2rayFullConfig(String config){
+        if (Libv2ray.isXrayURI(config)){
+           return V2rayConstants.DEFAULT_FULL_JSON_CONFIG.replace(DEFAULT_OUT_BOUND_PLACE_IN_FULL_JSON_CONFIG,Libv2ray.getXrayOutboundFromURI(config));
+        }
+        return config;
+    }
+    public static boolean refillV2rayConfig(String remark, String config, final ArrayList<String> blockedApplications) {
+        currentConfig.remark = remark;
+        currentConfig.blockedApplications = blockedApplications;
         try {
-            JSONObject config_json = new JSONObject(config);
+            JSONObject config_json = new JSONObject(normalizeV2rayFullConfig(config));
             try {
                 JSONArray inbounds = config_json.getJSONArray("inbounds");
                 for (int i = 0; i < inbounds.length(); i++) {
                     try {
                         if (inbounds.getJSONObject(i).getString("protocol").equals("socks")) {
-                            v2rayConfig.LOCAL_SOCKS5_PORT = inbounds.getJSONObject(i).getInt("port");
+                            currentConfig.localSocksPort = inbounds.getJSONObject(i).getInt("port");
                         }
                     } catch (Exception e) {
                         //ignore
                     }
                     try {
                         if (inbounds.getJSONObject(i).getString("protocol").equals("http")) {
-                            v2rayConfig.LOCAL_HTTP_PORT = inbounds.getJSONObject(i).getInt("port");
+                            currentConfig.localHttpPort = inbounds.getJSONObject(i).getInt("port");
                         }
                     } catch (Exception e) {
                         //ignore
                     }
                 }
             } catch (Exception e) {
-                Log.w(V2rayCoreManager.class.getSimpleName(), "startCore warn => can`t find inbound port of socks5 or http.");
-                return null;
+                Log.w(Utilities.class.getSimpleName(), "startCore warn => can`t find inbound port of socks5 or http.");
+                return false;
             }
             try {
-                v2rayConfig.CONNECTED_V2RAY_SERVER_ADDRESS = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).getString("address");
-                v2rayConfig.CONNECTED_V2RAY_SERVER_PORT = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).getString("port");
+                currentConfig.currentServerAddress = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).getString("address");
+                currentConfig.currentServerPort = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("vnext").getJSONObject(0).getInt("port");
             } catch (Exception e) {
-                v2rayConfig.CONNECTED_V2RAY_SERVER_ADDRESS = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("servers").getJSONObject(0).getString("address");
-                v2rayConfig.CONNECTED_V2RAY_SERVER_PORT = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("servers").getJSONObject(0).getString("port");
+                currentConfig.currentServerAddress = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("servers").getJSONObject(0).getString("address");
+                currentConfig.currentServerPort = config_json.getJSONArray("outbounds").getJSONObject(0).getJSONObject("settings").getJSONArray("servers").getJSONObject(0).getInt("port");
             }
             try {
                 if (config_json.has("policy")) {
@@ -142,7 +147,7 @@ public class Utilities {
             } catch (Exception ignore_error) {
                 //ignore
             }
-            if (AppConfigs.ENABLE_TRAFFIC_AND_SPEED_STATICS) {
+            if (currentConfig.enableTrafficStatics) {
                 try {
                     JSONObject policy = new JSONObject();
                     JSONObject levels = new JSONObject();
@@ -152,20 +157,29 @@ public class Utilities {
                     policy.put("system", system);
                     config_json.put("policy", policy);
                     config_json.put("stats", new JSONObject());
-                    config = config_json.toString();
-                    v2rayConfig.ENABLE_TRAFFIC_STATICS = true;
                 } catch (Exception e) {
+                    currentConfig.enableTrafficStatics = false;
                     //ignore
                 }
             }
+            currentConfig.fullJsonConfig = config_json.toString();
+            return true;
         } catch (Exception e) {
-            Log.e(Utilities.class.getName(), "parseV2rayJsonFile failed => ", e);
-            //ignore
-            return null;
+            Log.e(Utilities.class.getSimpleName(), "parseV2rayJsonFile failed => ", e);
+            return false;
         }
-        v2rayConfig.V2RAY_FULL_JSON_CONFIG = config;
-        return v2rayConfig;
     }
 
+    public static String normalizeIpv6(String address) {
+        if (isIpv6Address(address) && !address.contains("[") && !address.contains("]")) {
+            return String.format("[%s]", address);
+        } else {
+            return address;
+        }
+    }
 
+    public static boolean isIpv6Address(String address) {
+        String[] tmp = address.split(":");
+        return tmp.length > 2;
+    }
 }

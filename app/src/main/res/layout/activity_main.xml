@@ -5,17 +5,18 @@
     android:layout_height="match_parent"
     android:layout_marginHorizontal="10dp"
     android:orientation="vertical"
+    android:id="@+id/main_layout"
     tools:context=".MainActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="V2ray Config (json) :"
+        android:text="V2ray Config :"
         android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/v2ray_json_config"
+        android:id="@+id/v2ray_config"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="4dp"

@@ -9,10 +9,9 @@ android {
     defaultConfig {
         applicationId "dev.dev7.example"
         minSdk 21
-        //noinspection OldTargetApi
         targetSdk 34
-        versionCode 5
-        versionName "3.186"
+        versionCode 7
+        versionName "4.1810"
         setProperty("archivesBaseName", rootProject.name + "-" + versionName)
     }
 
@@ -32,8 +31,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation project(path: ':v2ray')
-
 }

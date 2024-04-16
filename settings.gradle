@@ -16,6 +16,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "V2ray-Example"
+rootProject.name = "V2ray-Android"
 include ':app'
 include ':v2ray'
