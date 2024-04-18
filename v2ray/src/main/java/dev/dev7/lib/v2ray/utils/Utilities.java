@@ -158,6 +158,7 @@ public class Utilities {
                     config_json.put("policy", policy);
                     config_json.put("stats", new JSONObject());
                 } catch (Exception e) {
+                    Log.e("log is here",e.toString());
                     currentConfig.enableTrafficStatics = false;
                     //ignore
                 }

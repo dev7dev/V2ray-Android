@@ -10,8 +10,8 @@ android {
         applicationId "dev.dev7.example"
         minSdk 21
         targetSdk 34
-        versionCode 7
-        versionName "4.1810"
+        versionCode 8
+        versionName "5.1810"
         setProperty("archivesBaseName", rootProject.name + "-" + versionName)
     }
 
