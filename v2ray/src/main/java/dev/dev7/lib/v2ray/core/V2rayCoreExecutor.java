@@ -117,11 +117,11 @@ public class V2rayCoreExecutor {
     }
 
     public long getDownloadSpeed() {
-        return v2RayPoint.queryStats("block", "downlink") + v2RayPoint.queryStats("PROXY_OUT", "downlink");
+        return v2RayPoint.queryStats("block", "downlink") + v2RayPoint.queryStats("PROXY_OUT", "downlink")+v2RayPoint.queryStats("proxy", "downlink");
     }
 
     public long getUploadSpeed() {
-        return v2RayPoint.queryStats("block", "uplink") + v2RayPoint.queryStats("PROXY_OUT", "uplink");
+        return v2RayPoint.queryStats("block", "uplink") + v2RayPoint.queryStats("PROXY_OUT", "uplink")+v2RayPoint.queryStats("proxy", "uplink");
     }
 
     public V2rayConstants.CORE_STATES getCoreState() {
