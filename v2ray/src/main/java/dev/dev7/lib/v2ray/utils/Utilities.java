@@ -103,6 +103,7 @@ public class Utilities {
         }
         return config;
     }
+
     public static boolean refillV2rayConfig(String remark, String config, final ArrayList<String> blockedApplications) {
         currentConfig.remark = remark;
         currentConfig.blockedApplications = blockedApplications;

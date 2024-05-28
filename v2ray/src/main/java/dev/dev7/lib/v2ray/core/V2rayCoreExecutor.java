@@ -117,11 +117,11 @@ public class V2rayCoreExecutor {
     }
 
     public long getDownloadSpeed() {
-        return v2RayPoint.queryStats("block", "downlink") + v2RayPoint.queryStats("PROXY_OUT", "downlink")+v2RayPoint.queryStats("proxy", "downlink");
+        return v2RayPoint.queryStats("block", "downlink") + v2RayPoint.queryStats("proxy", "downlink");
     }
 
     public long getUploadSpeed() {
-        return v2RayPoint.queryStats("block", "uplink") + v2RayPoint.queryStats("PROXY_OUT", "uplink")+v2RayPoint.queryStats("proxy", "uplink");
+        return v2RayPoint.queryStats("block", "uplink")  + v2RayPoint.queryStats("proxy", "uplink");
     }
 
     public V2rayConstants.CORE_STATES getCoreState() {
@@ -137,7 +137,7 @@ public class V2rayCoreExecutor {
     public void broadCastCurrentServerDelay() {
         try {
             if (v2rayServicesListener != null) {
-                int serverDelay = (int) v2RayPoint.measureDelay();
+                int serverDelay = (int) v2RayPoint.measureDelay("");
                 Intent serverDelayBroadcast = new Intent(V2RAY_SERVICE_CURRENT_CONFIG_DELAY_BROADCAST_INTENT);
                 serverDelayBroadcast.setPackage(v2rayServicesListener.getService().getPackageName());
                 serverDelayBroadcast.putExtra(V2RAY_SERVICE_CURRENT_CONFIG_DELAY_BROADCAST_EXTRA, serverDelay);
@@ -156,10 +156,19 @@ public class V2rayCoreExecutor {
         try {
             JSONObject config_json = new JSONObject(config);
             config_json.remove("routing");
+            config_json.remove("dns");
             JSONObject routing = new JSONObject();
-            routing.put("domainStrategy", "AsIs");
+            routing.put("domainStrategy", "IPIfNonMatch");
             config_json.put("routing", routing);
-            return Libv2ray.measureOutboundDelay(config_json.toString());
+            config_json.put("dns", new JSONObject("{\n" +
+                    "    \"hosts\": {\n" +
+                    "        \"domain:googleapis.cn\": \"googleapis.com\"\n" +
+                    "    },\n" +
+                    "    \"servers\": [\n" +
+                    "        \"1.1.1.1\"\n" +
+                    "    ]\n" +
+                    "}"));
+            return Libv2ray.measureOutboundDelay(config_json.toString(), "");
         } catch (Exception json_error) {
             Log.d(V2rayCoreExecutor.class.getSimpleName(), "getCurrentServerDelay -> ", json_error);
             return -1;

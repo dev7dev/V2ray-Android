@@ -43,7 +43,7 @@ public class V2rayConstants {
         IDLE,
         STOPPED,
     }
-    public static final String DEFAULT_OUT_BOUND_PLACE_IN_FULL_JSON_CONFIG = "CONFIG_PROXY_OUT_OUTBOUND_PLACE";
+    public static final String DEFAULT_OUT_BOUND_PLACE_IN_FULL_JSON_CONFIG = "CONFIG_PROXY_OUTBOUND_PLACE";
     public static final String DEFAULT_FULL_JSON_CONFIG = "{\n" +
             "  \"dns\": {\n" +
             "    \"hosts\": {\n" +
@@ -107,7 +107,7 @@ public class V2rayConstants {
             "        \"ip\": [\n" +
             "          \"1.1.1.1\"\n" +
             "        ],\n" +
-            "        \"outboundTag\": \"PROXY_OUT\",\n" +
+            "        \"outboundTag\": \"proxy\",\n" +
             "        \"port\": \"53\",\n" +
             "        \"type\": \"field\"\n" +
             "      }\n" +
