@@ -4,6 +4,8 @@ A simple Java module with sample source code to implement the v2ray on Android.
 This module is built from a [custom library based on the xray core](https://github.com/dev7dev/AndroidLibXrayLite)  . With this module, you can easily develop your VPN application based on powerful v2ray protocols. This module currently supports v2ray short links (URI) thanks to a custom library (may have bugs).  
 In fact, this module provides you a v2ray client with xray core, which you can manage with static functions in [V2rayController](https://github.com/dev7dev/V2ray-Android/blob/main/v2ray/src/main/java/dev/dev7/lib/v2ray/V2rayController.java) .
 
+| :exclamation:  The function of the library to convert uri to json may have a bug. Test before using in production.   |
+|----------------------------------------------------------------------------------------------------------------------|
 
 **Sample Application**
 *You can download sample release of this module from [Github Releases of this repo](https://github.com/dev7dev/V2ray-Android/releases)*
