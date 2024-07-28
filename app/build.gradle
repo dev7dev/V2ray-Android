@@ -10,8 +10,8 @@ android {
         applicationId "dev.dev7.example"
         minSdk 21
         targetSdk 34
-        versionCode 9
-        versionName "6.1813"
+        versionCode 10
+        versionName "7.1820"
         setProperty("archivesBaseName", rootProject.name + "-" + versionName)
     }
 
@@ -28,6 +28,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
 }
 
 dependencies {

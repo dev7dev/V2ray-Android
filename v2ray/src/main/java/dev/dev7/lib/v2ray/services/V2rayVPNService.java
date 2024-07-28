@@ -14,6 +14,7 @@ import android.net.LocalSocketAddress;
 import android.net.VpnService;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -64,7 +65,8 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
                     default:
                         break;
                 }
-            }catch (Exception ignore){}
+            } catch (Exception ignore) {
+            }
         }
     };
 
@@ -77,6 +79,8 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
             tun2SocksExecutor = new Tun2SocksExecutor(this);
             v2rayCoreExecutor = new V2rayCoreExecutor(this);
             notificationService = new NotificationService(this);
+            StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(threadPolicy);
             staticsBroadCastService = new StaticsBroadCastService(this, new StateListener() {
                 @Override
                 public V2rayConstants.CONNECTION_STATES getConnectionState() {
@@ -146,7 +150,8 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
                     onDestroy();
                     break;
             }
-        }catch (Exception ignore){}
+        } catch (Exception ignore) {
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -175,7 +180,11 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
         try {
 //            builder.addDisallowedApplication(getPackageName());
             tunnelInterface = builder.establish();
-            tun2SocksExecutor.run(this, currentConfig.localSocksPort, currentConfig.localDNSPort);
+            int localDNSPort = 0;
+            if (currentConfig.enableLocalTunneledDNS){
+                localDNSPort = currentConfig.localDNSPort;
+            }
+            tun2SocksExecutor.run(this, currentConfig.localSocksPort,localDNSPort );
             sendFileDescriptor();
             if (tun2SocksExecutor.isTun2SucksRunning()) {
                 connectionState = V2rayConstants.CONNECTION_STATES.CONNECTED;
@@ -183,9 +192,9 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
                 staticsBroadCastService.start();
             }
         } catch (Exception e) {
-            onDestroy();
+            Log.e(V2rayVPNService.class.getSimpleName(), "setupFailed => ", e);
+            stopService();
         }
-
     }
 
     @NonNull
@@ -232,8 +241,8 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
                     }
                     OutputStream clientOutStream = clientLocalSocket.getOutputStream();
                     clientLocalSocket.setFileDescriptorsForSend(new FileDescriptor[]{tunFd});
-                    clientOutStream.write(1024);
-                    clientLocalSocket.setFileDescriptorsForSend(null);
+                    clientOutStream.write(42);
+//                    clientLocalSocket.setFileDescriptorsForSend(null);
                     clientLocalSocket.shutdownOutput();
                     clientLocalSocket.close();
                     isSendFDSuccess = true;

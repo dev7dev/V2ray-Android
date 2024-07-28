@@ -16,6 +16,7 @@ import dev.dev7.lib.v2ray.interfaces.V2rayServicesListener;
 import dev.dev7.lib.v2ray.model.V2rayConfigModel;
 import dev.dev7.lib.v2ray.utils.Utilities;
 import dev.dev7.lib.v2ray.utils.V2rayConstants;
+import go.Seq;
 import libv2ray.Libv2ray;
 import libv2ray.V2RayPoint;
 import libv2ray.V2RayVPNServiceSupportsSet;
@@ -78,6 +79,7 @@ public class V2rayCoreExecutor {
 
     public V2rayCoreExecutor(final Service targetService) {
         this.v2rayServicesListener = (V2rayServicesListener) targetService;
+        Seq.setContext(targetService);
         Libv2ray.initV2Env(getUserAssetsPath(targetService.getApplicationContext()), getDeviceIdForXUDPBaseKey());
         coreState = V2rayConstants.CORE_STATES.IDLE;
         Log.d(V2rayCoreExecutor.class.getSimpleName(), "V2rayCoreExecutor -> New initialize from : " + targetService.getClass().getSimpleName());
