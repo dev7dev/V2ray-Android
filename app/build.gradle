@@ -11,7 +11,7 @@ android {
         minSdk 21
         targetSdk 34
         versionCode 10
-        versionName "7.1820"
+        versionName "7.1821"
         setProperty("archivesBaseName", rootProject.name + "-" + versionName)
     }
 
