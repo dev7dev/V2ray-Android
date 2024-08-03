@@ -76,11 +76,11 @@ public class V2rayVPNService extends VpnService implements V2rayServicesListener
         super.onCreate();
         if (!isServiceCreated) {
             connectionState = V2rayConstants.CONNECTION_STATES.CONNECTING;
+            StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(threadPolicy);
             tun2SocksExecutor = new Tun2SocksExecutor(this);
             v2rayCoreExecutor = new V2rayCoreExecutor(this);
             notificationService = new NotificationService(this);
-            StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(threadPolicy);
             staticsBroadCastService = new StaticsBroadCastService(this, new StateListener() {
                 @Override
                 public V2rayConstants.CONNECTION_STATES getConnectionState() {
